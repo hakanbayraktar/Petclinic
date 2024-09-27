@@ -1,7 +1,12 @@
 pipeline {
     agent any 
     
-    
+    environment{
+        cred = credentials('aws-key')
+        dockerhub_cred = credentials('docker-cred')
+        DOCKER_IMAGE = "hbayraktar/petclinic"
+        DOCKER_TAG = "$BUILD_NUMBER"
+    }
     stages{
         
         stage("Git Checkout"){
@@ -33,8 +38,8 @@ pipeline {
                 script{
                    withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
                         
-                        sh "docker build -t hbayraktar/pet-clinic123:latest ."
-                        sh "docker push hakanbayraktar/pet-clinic123:latest "
+                        sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                        sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG} "
                     }
                 }
             }
@@ -43,8 +48,20 @@ pipeline {
         
         stage("Deploy To Tomcat"){
             steps{
-                sh "cp  /var/lib/jenkins/workspace/CI-CD/target/petclinic.war /opt/apache-tomcat-9.0.65/webapps/ "
+                sh 'aws eks update-kubeconfig --region us-east-1 --name devops-working'
+                sh 'kubectl apply -f manifest/deployment.yaml'
             }
+        }
+    }
+    post {
+        always {
+            echo "Job is completed"
+        }
+        success {
+            echo "It is a success"
+        }
+        failure {
+            echo "Job is failed"
         }
     }
 }
