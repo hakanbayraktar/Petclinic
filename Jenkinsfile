@@ -2,10 +2,6 @@ pipeline {
     agent any 
     
     
-    environment {
-        SCANNER_HOME=tool 'sonar-scanner'
-    }
-    
     stages{
         
         stage("Git Checkout"){
