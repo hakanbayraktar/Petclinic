@@ -45,8 +45,12 @@ pipeline {
             }
         }
         
-        
-        stage("Deploy To Tomcat"){
+        stage("Update Kubernetes Manifest"){
+            steps{
+                sh "sed -i 's|hbayraktar/petclinix:latest|${DOCKER_IMAGE}:${DOCKER_TAG}|' manifest/deployment.yaml"
+            }
+        }
+        stage("Deploy To EKS"){
             steps{
                 sh 'aws eks update-kubeconfig --region us-east-1 --name my-eks-cluster'
                 sh 'kubectl apply -f manifest/deployment.yaml'
