@@ -48,7 +48,7 @@ pipeline {
         
         stage("Deploy To Tomcat"){
             steps{
-                sh 'aws eks update-kubeconfig --region us-east-1 --name devops-working'
+                sh 'aws eks update-kubeconfig --region us-east-1 --name my-eks-cluste'
                 sh 'kubectl apply -f manifest/deployment.yaml'
             }
         }
